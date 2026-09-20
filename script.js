@@ -4,6 +4,17 @@ document.addEventListener('DOMContentLoaded', () => {
     function forceZoomOut() {
         let meta = document.querySelector('meta[name="viewport"]');
         if (meta) {
+            meta.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no');
+            setTimeout(() => {
+                meta.setAttribute('content', 'width=device-width, initial-scale=1.0');
+            }, 100);
+        }
+    }
+
+
+    function forceZoomOut() {
+        let meta = document.querySelector('meta[name="viewport"]');
+        if (meta) {
             // Forzar al navegador a reevaluar la escala fijando un máximo temporalmente
             meta.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no');
             setTimeout(() => {
