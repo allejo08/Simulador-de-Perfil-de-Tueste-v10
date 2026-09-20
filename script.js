@@ -687,7 +687,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 currentTemp = activePointInManual.temp;
             } else {
                 // 2. Si no, usa la lógica original (último punto o tiempo en vivo)
-                const lastDataPoint = s.data.filter(d => d.temp !== null).sort((a, b) => b.time - a.time)[0];
+                const lastDataPoint = s.data.filter(d => d.temp !== null && !d.adjustment).sort((a, b) => b.time - a.time)[0];
                 currentTime = state.mode === 'live' ? s.elapsedSeconds : (lastDataPoint ? lastDataPoint.time : 0);
                 currentTemp = lastDataPoint ? lastDataPoint.temp : null;
             }
@@ -706,7 +706,7 @@ document.addEventListener('DOMContentLoaded', () => {
             s.equipo = window.sessionRoles; Object.assign(s, createEmptySample()); Object.assign(s, importedProfile); s.asistenteAvisos = s.asistenteAvisos || []; s.adjustments = s.adjustments || []; updateUI(); restoreInfoInputs(state.currentSample); } catch (error) { alert(`Error al importar perfil: ${error.message}`); } }; reader.readAsText(file); event.target.value = ''; }
     
     function analizarPerfilCompleto(sample) {
-        const data = sample.data.filter(d => d.temp !== null).sort((a, b) => a.time - b.time);
+        const data = sample.data.filter(d => d.temp !== null && !d.adjustment).sort((a, b) => a.time - b.time);
         const avisos = [];
         const avisosRegistrados = {}; 
 
@@ -765,7 +765,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     function verificarEstadoTueste(sample) {
-        const data = sample.data.filter(d => d.temp !== null).sort((a, b) => a.time - b.time);
+        const data = sample.data.filter(d => d.temp !== null && !d.adjustment).sort((a, b) => a.time - b.time);
         if (data.length < 2) { allDOMElements.avisosContainer.innerHTML = '<p class="aviso aviso-info">Análisis en vivo comenzará con más datos.</p>'; return; }
         
         const lastPoint = data[data.length - 1];
@@ -877,7 +877,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const timeDiffMinutes = (curr.time - prev.time) / 60;
             const ror = timeDiffMinutes > 0 ? (curr.temp - prev.temp) / timeDiffMinutes : null;
             // Evitar picos anómalos de lectura en RoR (> 150)
-            if(ror !== null && ror > s.maxRoR.value && ror < 150) { 
+            if(ror !== null && ror > s.maxRoR.value && ror <= 60) { 
                 s.maxRoR = { value: ror, time: curr.time }; 
             }
             rorPoints.push({ x: new Date(curr.time * 1000), y: ror });
